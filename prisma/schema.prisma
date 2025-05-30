@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bookings {
+  id              Int              @id @default(autoincrement())
+  user_id         Int
+  car_id          Int
+  driver_id       Int
+  tanggal_mulai   DateTime?        @db.Date
+  tanggal_selesai DateTime?        @db.Date
+  durasi          Int?
+  biaya           Float?
+  status          bookings_status?
+  users           users            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bookings_ibfk_1")
+  cars            cars             @relation(fields: [car_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bookings_ibfk_2")
+  drivers         drivers          @relation(fields: [driver_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "bookings_ibfk_3")
+  payments        payments[]
+
+  @@index([car_id], map: "car_id")
+  @@index([driver_id], map: "driver_id")
+  @@index([user_id], map: "user_id")
+}
+
+model cars {
+  id         Int          @id @default(autoincrement())
+  no_plat    String?      @db.VarChar(20)
+  merk       String?      @db.VarChar(100)
+  model      String?      @db.VarChar(100)
+  tahun      Int?         @db.Year
+  warna      String?      @db.VarChar(50)
+  kapasitas  Int?
+  harga      Int?
+  status     cars_status? @default(tersedia)
+  foto_mobil String?      @db.LongText
+  deskripsi  String?      @db.Text
+  bookings   bookings[]
+}
+
+model drivers {
+  id        Int             @id @default(autoincrement())
+  name      String?         @db.VarChar(255)
+  nik       String?         @db.VarChar(16)
+  nomor_sim String?         @db.VarChar(20)
+  alamat    String?         @db.Text
+  tarif     Int?
+  photo     String?         @db.LongText
+  phone     String?         @db.VarChar(50)
+  status    drivers_status? @default(tersedia)
+  bookings  bookings[]
+
+  @@unique([nik])
+  @@unique([nomor_sim])
+}
+
+model payments {
+  id                 Int                         @id @default(autoincrement())
+  booking_id         Int
+  jumlah_pembayaran  Float?
+  metode_pembayaran  payments_metode_pembayaran?
+  tanggal_pembayaran DateTime?                   @db.Date
+  status_pembayaran  payments_status_pembayaran?
+  bookings           bookings                    @relation(fields: [booking_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_1")
+  reports            reports[]
+  validates          validates[]
+
+  @@index([booking_id], map: "booking_id")
+}
+
+model profiles {
+  id        Int     @id @default(autoincrement())
+  user_id   Int
+  full_name String? @db.VarChar(255)
+  email     String? @db.VarChar(255)
+  phone     String? @db.VarChar(50)
+  address   String? @db.Text
+  users     users   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "profiles_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model reports {
+  id              Int             @id @default(autoincrement())
+  user_id         Int
+  payment_id      Int
+  laporan         String?         @db.Text
+  tanggal_laporan DateTime?       @db.Date
+  status          reports_status? @default(pending)
+  users           users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reports_ibfk_1")
+  payments        payments        @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reports_ibfk_2")
+
+  @@index([payment_id], map: "payment_id")
+  @@index([user_id], map: "user_id")
+}
+
+model users {
+  id       Int         @id @default(autoincrement())
+  username String      @unique @db.VarChar(100)
+  password String      @db.VarChar(255)
+  role     users_role? @default(user)
+  bookings bookings[]
+  profiles profiles[]
+  reports  reports[]
+}
+
+model validates {
+  id         Int               @id @default(autoincrement())
+  payment_id Int
+  status     validates_status?
+  payments   payments          @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "validates_ibfk_1")
+
+  @@index([payment_id], map: "payment_id")
+}
+
+enum validates_status {
+  menunggu
+  valid
+  tidak_valid
+}
+
+enum payments_metode_pembayaran {
+  cash
+  transfer
+  qris
+}
+
+enum users_role {
+  user
+  admin
+}
+
+enum payments_status_pembayaran {
+  belum_bayar
+  sudah_bayar
+  pending
+}
+
+enum reports_status {
+  pending
+  diproses
+  selesai
+}
+
+enum bookings_status {
+  pending
+  confirmed
+  cancelled
+  completed
+}
+
+enum cars_status {
+  tersedia
+  tidak_tersedia
+}
+
+enum drivers_status {
+  tersedia
+  tidak_tersedia
+}
