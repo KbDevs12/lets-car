@@ -5,7 +5,7 @@ export const carSchema = z.object({
   no_plat: z
     .string()
     .min(1, "Nomor plat harus diisi")
-    .max(20, "Nomor plat maksimal 20 karakter")
+    .max(10, "Nomor plat maksimal 10 karakter dengan spasi")
     .regex(
       /^[A-Z]{1,2}\s?\d{1,4}\s?[A-Z]{1,3}$/,
       "Format nomor plat tidak valid (contoh: B 1234 ABC)"

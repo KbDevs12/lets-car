@@ -22,11 +22,16 @@ export function handlePrismaError(error: any) {
 
   if (error.code === "P2002") {
     const target = error.meta?.target;
-    if (Array.isArray(target) && target.includes("username")) {
-      return { message: "Username sudah digunakan", field: "username" };
-    }
-    if (Array.isArray(target) && target.includes("email")) {
-      return { message: "Email sudah digunakan", field: "email" };
+    if (Array.isArray(target)) {
+      if (target.includes("username")) {
+        return { message: "Username sudah digunakan", field: "username" };
+      }
+      if (target.includes("email")) {
+        return { message: "Email sudah digunakan", field: "email" };
+      }
+      if (target.includes("no_plat")) {
+        return { message: "Nomor plat sudah terdaftar", field: "no_plat" };
+      }
     }
     return { message: "Data sudah ada dalam sistem" };
   }
