@@ -16,6 +16,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Eye, EyeOff, Lock, User, Car, ArrowRight } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 
 const loginSchema = z.object({
   username: z.string().min(3, { message: "Username minimal 3 karakter" }),
@@ -56,7 +57,7 @@ export default function LoginPage() {
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted) return <Loading />;
 
   return (
     <div className="min-h-screen bg-background">

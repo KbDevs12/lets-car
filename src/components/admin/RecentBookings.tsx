@@ -1,52 +1,11 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { fetchRecentBookings } from "@/actions/dashboard-actions";
 
 export async function RecentBookings() {
-  // In a real app, this would be fetched from your database
-  const recentBookings = [
-    {
-      id: 1,
-      userName: "John Doe",
-      carModel: "Toyota Avanza",
-      status: "confirmed",
-      date: "2024-01-15",
-      amount: 350000,
-    },
-    {
-      id: 2,
-      userName: "Jane Smith",
-      carModel: "Honda Civic",
-      status: "pending",
-      date: "2024-01-14",
-      amount: 500000,
-    },
-    {
-      id: 3,
-      userName: "Bob Johnson",
-      carModel: "Suzuki Ertiga",
-      status: "completed",
-      date: "2024-01-13",
-      amount: 400000,
-    },
-    {
-      id: 4,
-      userName: "Alice Brown",
-      carModel: "Toyota Innova",
-      status: "cancelled",
-      date: "2024-01-12",
-      amount: 600000,
-    },
-    {
-      id: 5,
-      userName: "Charlie Wilson",
-      carModel: "Daihatsu Xenia",
-      status: "confirmed",
-      date: "2024-01-11",
-      amount: 320000,
-    },
-  ];
+  const recentBookings = await fetchRecentBookings();
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string | null | undefined) => {
     switch (status) {
       case "confirmed":
         return "bg-green-100 text-green-800";

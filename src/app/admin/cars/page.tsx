@@ -34,6 +34,7 @@ export default function CarPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
+  const [editingCar, setEditingCar] = useState<Car | null>(null); // Track editing state
 
   const fetchCars = async () => {
     try {
@@ -80,10 +81,13 @@ export default function CarPage() {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      const method = editingCar ? "PUT" : "POST";
+      const submitData = editingCar ? { ...data, id: editingCar.id } : data;
+
       const res = await fetch("/api/cars", {
-        method: "POST",
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       });
 
       if (!res.ok) {
@@ -91,26 +95,41 @@ export default function CarPage() {
         throw new Error(err.error || "Gagal menyimpan data");
       }
 
-      toast.success("Mobil berhasil ditambahkan");
+      toast.success(
+        editingCar ? "Mobil berhasil diupdate" : "Mobil berhasil ditambahkan"
+      );
       form.reset();
       setPreview(null);
+      setEditingCar(null);
       setSheetOpen(false);
+      fetchCars(); // Refresh data after successful operation
     } catch (err: any) {
       toast.error(err.message);
     }
   };
 
   const onEdit = (car: Car) => {
+    setEditingCar(car);
     form.reset(car);
     setPreview(car.foto_mobil || null);
     setSheetOpen(true);
+  };
+
+  const handleSheetOpenChange = (open: boolean) => {
+    setSheetOpen(open);
+    if (!open) {
+      // Reset form and editing state when sheet closes
+      setEditingCar(null);
+      form.reset();
+      setPreview(null);
+    }
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold">Manajemen Mobil</h1>
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
           <SheetTrigger asChild>
             <Button>Tambah Mobil</Button>
           </SheetTrigger>
@@ -118,7 +137,9 @@ export default function CarPage() {
             side="right"
             className="w-full sm:w-[600px] overflow-auto"
           >
-            <h2 className="text-lg font-semibold mb-4">Form Mobil</h2>
+            <h2 className="text-lg font-semibold mb-4">
+              {editingCar ? "Edit Mobil" : "Tambah Mobil"}
+            </h2>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -229,7 +250,14 @@ export default function CarPage() {
                     <FormItem>
                       <FormLabel>Kapasitas</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} />
+                        <Input
+                          type="number"
+                          value={field.value}
+                          min={0}
+                          onChange={(e) =>
+                            field.onChange(e.target.valueAsNumber)
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -245,6 +273,7 @@ export default function CarPage() {
                       <FormControl>
                         <Input
                           type="number"
+                          min={0}
                           {...field}
                           onChange={(e) =>
                             field.onChange(e.target.valueAsNumber)
@@ -264,7 +293,7 @@ export default function CarPage() {
                       <FormLabel>Status</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -317,7 +346,7 @@ export default function CarPage() {
                 </FormItem>
 
                 <Button type="submit" className="w-full">
-                  Simpan
+                  {editingCar ? "Update" : "Simpan"}
                 </Button>
               </form>
             </Form>

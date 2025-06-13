@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -20,19 +21,65 @@ import {
 } from "lucide-react";
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Bookings", href: "/admin/bookings", icon: Calendar },
-  { name: "Cars", href: "/admin/cars", icon: Car },
-  { name: "Drivers", href: "/admin/drivers", icon: UserCheck },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Payments", href: "/admin/payments", icon: CreditCard },
-  { name: "Reports", href: "/admin/reports", icon: FileText },
-  { name: "Validations", href: "/admin/validations", icon: Shield },
+  {
+    name: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboard,
+    roles: ["admin", "owner"], // Both admin and owner can access
+  },
+  {
+    name: "Bookings",
+    href: "/admin/bookings",
+    icon: Calendar,
+    roles: ["admin"], // Only admin can access
+  },
+  {
+    name: "Cars",
+    href: "/admin/cars",
+    icon: Car,
+    roles: ["admin"], // Only admin can access
+  },
+  {
+    name: "Drivers",
+    href: "/admin/drivers",
+    icon: UserCheck,
+    roles: ["admin"], // Only admin can access
+  },
+  {
+    name: "Users",
+    href: "/admin/users",
+    icon: Users,
+    roles: ["admin"], // Only admin can access
+  },
+  {
+    name: "Payments",
+    href: "/admin/payments",
+    icon: CreditCard,
+    roles: ["admin"], // Only admin can access
+  },
+  {
+    name: "Reports",
+    href: "/admin/reports",
+    icon: FileText,
+    roles: ["admin", "owner"], // Both admin and owner can access
+  },
+  {
+    name: "Validations",
+    href: "/admin/validations",
+    icon: Shield,
+    roles: ["admin"], // Only admin can access
+  },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
+
+  // Filter navigation based on user role
+  const filteredNavigation = navigation.filter((item) =>
+    item.roles.includes(session?.user?.role as string)
+  );
 
   return (
     <>
@@ -66,7 +113,7 @@ export function AdminSidebar() {
           {/* Navigation */}
           <ScrollArea className="flex-1 py-4">
             <nav className="px-4 space-y-2">
-              {navigation.map((item) => {
+              {filteredNavigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
@@ -93,13 +140,15 @@ export function AdminSidebar() {
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                 <span className="text-sm font-medium text-primary-foreground">
-                  A
+                  {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               </div>
               <div>
-                <p className="text-sm font-medium">Admin</p>
-                <p className="text-xs text-muted-foreground">
-                  admin@example.com
+                <p className="text-sm font-medium">
+                  {session?.user?.name || "User"}
+                </p>
+                <p className="text-xs text-muted-foreground capitalize">
+                  Role: {session?.user?.role || "user"}
                 </p>
               </div>
             </div>

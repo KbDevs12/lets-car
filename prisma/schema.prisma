@@ -48,7 +48,6 @@ model drivers {
   nik       String?         @db.VarChar(16)
   nomor_sim String?         @db.VarChar(20)
   alamat    String?         @db.Text
-  tarif     Int?
   photo     String?         @db.LongText
   phone     String?         @db.VarChar(50)
   status    drivers_status? @default(tersedia)
@@ -85,14 +84,13 @@ model profiles {
 }
 
 model reports {
-  id              Int             @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   user_id         Int
   payment_id      Int
-  laporan         String?         @db.Text
-  tanggal_laporan DateTime?       @db.Date
-  status          reports_status? @default(pending)
-  users           users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reports_ibfk_1")
-  payments        payments        @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reports_ibfk_2")
+  laporan         String?   @db.Text
+  tanggal_laporan DateTime? @db.Date
+  users           users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reports_ibfk_1")
+  payments        payments  @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reports_ibfk_2")
 
   @@index([payment_id], map: "payment_id")
   @@index([user_id], map: "user_id")
@@ -132,18 +130,13 @@ enum payments_metode_pembayaran {
 enum users_role {
   user
   admin
+  owner
 }
 
 enum payments_status_pembayaran {
   belum_bayar
   sudah_bayar
   pending
-}
-
-enum reports_status {
-  pending
-  diproses
-  selesai
 }
 
 enum bookings_status {

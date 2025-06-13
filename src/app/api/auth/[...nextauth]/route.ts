@@ -6,6 +6,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",

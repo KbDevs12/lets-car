@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Pencil, Trash2 } from "lucide-react";
+import { MapPin, Phone, Pencil, Trash2, Shield, Car } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -23,9 +23,9 @@ interface Driver {
   nik: string;
   nomor_sim: string;
   alamat: string;
-  tarif: number;
   phone: string;
   photo: string;
+  status: "tersedia" | "tidak_tersedia";
 }
 
 export function getInitials(name: string) {
@@ -35,14 +35,6 @@ export function getInitials(name: string) {
     .join("")
     .toUpperCase()
     .slice(0, 2);
-}
-
-export function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
 }
 
 export const createDriverColumns = ({
@@ -94,6 +86,7 @@ export const createDriverColumns = ({
     header: "Kontak",
     cell: ({ getValue }) => (
       <div className="flex items-center gap-1 text-sm">
+        <Phone className="h-3 w-3" />
         {getValue() as string}
       </div>
     ),
@@ -103,6 +96,7 @@ export const createDriverColumns = ({
     header: "Alamat",
     cell: ({ getValue }) => (
       <div className="flex items-start gap-1 text-sm max-w-[200px]">
+        <MapPin className="h-3 w-3 mt-0.5 flex-shrink-0" />
         <span className="truncate" title={getValue() as string}>
           {getValue() as string}
         </span>
@@ -110,13 +104,29 @@ export const createDriverColumns = ({
     ),
   },
   {
-    accessorKey: "tarif",
-    header: "Tarif/Hari",
-    cell: ({ getValue }) => (
-      <div className="text-right font-semibold text-green-600">
-        {formatCurrency(getValue() as number)}
-      </div>
-    ),
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ getValue }) => {
+      const status = getValue() as string;
+      const isAvailable = status === "tersedia";
+      return (
+        <Badge
+          variant={isAvailable ? "default" : "secondary"}
+          className={`flex items-center gap-1 ${
+            isAvailable
+              ? "bg-green-100 text-green-800 hover:bg-green-200"
+              : "bg-orange-100 text-orange-800 hover:bg-orange-200"
+          }`}
+        >
+          {isAvailable ? (
+            <Shield className="h-3 w-3" />
+          ) : (
+            <Car className="h-3 w-3" />
+          )}
+          {isAvailable ? "Tersedia" : "Tidak Tersedia"}
+        </Badge>
+      );
+    },
   },
   {
     id: "actions",

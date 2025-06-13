@@ -22,19 +22,20 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop menu */}
-        <nav className="hidden md:flex gap-6 text-sm">
+        <nav className="hidden md:flex gap-6 text-md">
           <Link href="/" className="hover:underline">
             Home
           </Link>
           <Link href="/cars" className="hover:underline">
-            Cars
+            Car
           </Link>
-          <Link href="/about" className="hover:underline">
-            About
-          </Link>
-          <Link href="/contact" className="hover:underline">
-            Contact
-          </Link>
+          {session?.user && (
+            <>
+              <Link href="/my-booking" className="hover:underline">
+                My Bookings
+              </Link>
+            </>
+          )}
         </nav>
 
         {/* Mobile hamburger */}

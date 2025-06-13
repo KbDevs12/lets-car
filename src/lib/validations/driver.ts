@@ -11,12 +11,14 @@ export const driverFormSchema = z.object({
     .length(14, "Nomor SIM tepat 14 digit")
     .regex(/^[A-Z0-9]+$/, "Nomor SIM hanya boleh berisi huruf dan angka"),
   alamat: z.string().min(5, "Alamat wajib diisi"),
-  tarif: z.number().min(0, "Tarif tidak boleh negatif"),
   phone: z
     .string()
     .min(8, "No. HP minimal 8 digit")
     .max(15, "No. HP maksimal 15 digit")
     .regex(/^[0-9+\-\s]+$/, "Format nomor HP tidak valid"),
+  status: z.enum(["tersedia", "tidak_tersedia"], {
+    required_error: "Status driver wajib dipilih",
+  }),
   photo: z.string().optional(),
 });
 

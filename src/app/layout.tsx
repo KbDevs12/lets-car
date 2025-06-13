@@ -5,8 +5,7 @@ import Navbar from "@/components/ui/Navbar";
 import { AuthProvider } from "./providers/AuthProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
-
-// Import Poppins untuk heading
+import Footer from "@/components/ui/footer";
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -39,6 +38,7 @@ export default function RootLayout({
           <ThemeProvider attribute={"class"} defaultTheme="system" enableSystem>
             <Navbar />
             {children}
+            <Footer />
             <Toaster />
           </ThemeProvider>
         </AuthProvider>

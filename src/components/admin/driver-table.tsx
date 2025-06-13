@@ -14,7 +14,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Plus, Users, DollarSign, CreditCard } from "lucide-react";
+import { Plus, Users, Car, Shield } from "lucide-react";
+import Loading from "../ui/Loading";
 
 interface Driver {
   id: number;
@@ -22,9 +23,9 @@ interface Driver {
   nik: string;
   nomor_sim: string;
   alamat: string;
-  tarif: number;
   phone: string;
   photo: string;
+  status: "tersedia" | "tidak_tersedia";
 }
 
 export default function DriverTable() {
@@ -50,6 +51,13 @@ export default function DriverTable() {
     fetchDrivers();
   }, []);
 
+  // Updated: This function now only handles the success callback
+  const handleFormSuccess = () => {
+    fetchDrivers(); // Refresh the data
+    setOpen(false); // Close the sheet
+    setSelected(undefined); // Clear selection
+  };
+
   const handleDelete = async (driver: Driver) => {
     try {
       const res = await fetch(`/api/drivers/${driver.id}`, {
@@ -74,6 +82,13 @@ export default function DriverTable() {
     onDelete: handleDelete,
   });
 
+  const availableDrivers = drivers.filter(
+    (d) => d.status === "tersedia"
+  ).length;
+  const unavailableDrivers = drivers.filter(
+    (d) => d.status === "tidak_tersedia"
+  ).length;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -84,7 +99,7 @@ export default function DriverTable() {
             Data Driver
           </h1>
           <p className="text-muted-foreground">
-            Kelola informasi driver dan tarif sewa
+            Kelola informasi driver dan ketersediaan
           </p>
         </div>
         <Button
@@ -109,29 +124,25 @@ export default function DriverTable() {
         </div>
         <div className="bg-card border p-4 rounded-md">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <DollarSign className="h-4 w-4" />
-            Rata-rata Tarif
+            <Shield className="h-4 w-4 text-green-600" />
+            Driver Tersedia
           </div>
-          <div className="text-2xl font-bold">
-            {drivers.length > 0
-              ? new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                }).format(
-                  drivers.reduce((sum, d) => sum + d.tarif, 0) / drivers.length
-                )
-              : "Rp 0"}
+          <div className="text-2xl font-bold text-green-600">
+            {availableDrivers}
           </div>
         </div>
         <div className="bg-card border p-4 rounded-md">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CreditCard className="h-4 w-4" />
-            Driver Aktif
+            <Car className="h-4 w-4 text-orange-600" />
+            Driver Tidak Tersedia
           </div>
-          <div className="text-2xl font-bold">{drivers.length}</div>
+          <div className="text-2xl font-bold text-orange-600">
+            {unavailableDrivers}
+          </div>
         </div>
       </div>
 
+      {loading && <Loading />}
       {/* Tabel */}
       {!loading && <DataTable columns={columns} data={drivers} />}
 
@@ -148,14 +159,7 @@ export default function DriverTable() {
                 : "Lengkapi form di bawah untuk menambahkan driver baru"}
             </SheetDescription>
           </SheetHeader>
-          <DriverForm
-            initialData={selected}
-            onSuccess={() => {
-              fetchDrivers();
-              setOpen(false);
-              setSelected(undefined);
-            }}
-          />
+          <DriverForm initialData={selected} onSuccess={handleFormSuccess} />
         </SheetContent>
       </Sheet>
     </div>

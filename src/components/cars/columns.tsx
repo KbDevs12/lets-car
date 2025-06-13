@@ -15,6 +15,10 @@ export function columns({
 }): ColumnDef<Car>[] {
   return [
     {
+      accessorKey: "id",
+      header: "ID",
+    },
+    {
       accessorKey: "no_plat",
       header: "No. Plat",
     },
@@ -26,6 +30,24 @@ export function columns({
       accessorKey: "model",
       header: "Model",
     },
+    {
+      accessorKey: "warna",
+      header: "Warna",
+    },
+    {
+      accessorKey: "harga",
+      header: "Harga",
+      cell: ({ row }) => {
+        const harga = row.original.harga;
+        const formatted = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+        }).format(harga);
+
+        return <span>{formatted}</span>;
+      },
+    },
+
     {
       accessorKey: "status",
       header: "Status",

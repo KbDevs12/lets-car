@@ -20,31 +20,14 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("Received data:", body); // Debug log
-
-    // Validasi data dengan schema
     const parsed = driverSchema.parse(body);
-    console.log("Parsed data:", parsed); // Debug log
 
-    // Buat driver baru di database
-    const driver = await prisma.drivers.create({
-      data: {
-        name: parsed.name,
-        nik: parsed.nik, // Simpan sebagai string, bukan BigInt
-        nomor_sim: parsed.nomor_sim, // Simpan sebagai string, bukan BigInt
-        alamat: parsed.alamat,
-        tarif: parsed.tarif,
-        phone: parsed.phone,
-        photo: parsed.photo || "", // Fallback ke empty string
-      },
-    });
+    const driver = await prisma.drivers.create({ data: parsed });
 
-    console.log("Created driver:", driver); // Debug log
     return NextResponse.json(driver, { status: 201 });
   } catch (error: any) {
     console.error("Error creating driver:", error);
 
-    // Handle Zod validation errors
     if (error.name === "ZodError") {
       return NextResponse.json(
         {
@@ -55,7 +38,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Handle Prisma errors
     if (error.code === "P2002") {
       return NextResponse.json(
         {
